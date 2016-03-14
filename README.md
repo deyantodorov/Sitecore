@@ -1,7 +1,7 @@
 # Sitecore - cheat sheet
----
 
 # Page Tokens
+
 | Token name | Description  |
 |---|---|
 | $name  | Name of the item |
@@ -13,6 +13,7 @@
 | $now | Current date and time (ISO format) |
 
 # Image parameters
+
 | Parameter | Property affected  |
 |---|---|
 | w  | Width  |
