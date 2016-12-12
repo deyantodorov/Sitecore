@@ -3,7 +3,6 @@
 1. Spend 2-3 hours or days figting with **Sitecore 8.2** finding a way to modify **ViewEngines.Engines** in ASP.NET MVC application. *Well if you are reading this I've assume you already done this :)*
 
 2. Make a *CustomViewsPathsProcessor.cs* or use another naming convention. Here is my example:
-
 ``` C#
 using System.Linq;
 using System.Web.Mvc;
@@ -35,7 +34,6 @@ namespace ProjectName.Infrastructure
     }
 }
 ```
-
 3. Register **CustomViewsPathsProcessor** in **Sitecore.config**. How?!
 
 In your App_Config\Include folder make a new config file called **Z.Pipelines.config**
