@@ -43,4 +43,4 @@ There is a simple and easy way to resolve this issue, on WFFM custom save action
 
 Source: http://sitecorecode.com/index.php/2016/05/23/wffm-custom-save-action-not-woking-on-cd-environment/
 
-http://sitecorecode.com/wp-content/uploads/2016/05/ClientAction.png
+![Client Action](http://sitecorecode.com/wp-content/uploads/2016/05/ClientAction.png)
