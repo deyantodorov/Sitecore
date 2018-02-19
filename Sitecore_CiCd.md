@@ -1,7 +1,7 @@
-# Sitecore-CI-CD
-Information about Sitecore 8 CI/CD process
+# How to create Sitecore Continuous Integration / Continuous Deployment (CI/CD) for Sitecore version 8
 
-Links:
+
+Links and materials:
 --
 https://blog.wesleylomax.co.uk/2016/04/19/continuous-delivery-sitecore-tds-git-team-city-octopus-sitecore-ship-part-2/
 
@@ -12,7 +12,7 @@ https://thesoftwaredudeblog.wordpress.com/2016/07/11/building-a-continuous-integ
 https://naveed-ahmad.com/2016/12/07/sitecore-devop-series-part-1-continuous-integration-why-your-sitecore-project-deployments-must-be-autmated/
 
 Sitecore configuration roles to help with environment configuration:
-https://github.com/Sitecore/Sitecore-Configuration-Roles
+https://github.com/Sitecore/Sitecore-Configuration-Roles - didn't work as expected
 
 Update package content:
 https://github.com/kevinobee/Sitecore.Ship
