@@ -34,3 +34,8 @@ Template - means data template or object. For example object Person with propert
 Content - content tree in Sitecore administration
 
 Layout - in other CMS systems this is equal to template, but in Sitecore context Layout means basic structure. It's the same as MVC layout.   
+# Links
+
+Bundling
+- http://www.bugdebugzone.com/2015/07/bundling-and-minification-in-sitecore.html
+- http://jockstothecore.com/bundling-with-sitecore-mvc/
