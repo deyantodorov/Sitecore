@@ -50,8 +50,4 @@ Sitecore configuration roles to help with environment configuration:
 https://github.com/Sitecore/Sitecore-Configuration-Roles - didn't work as expected
 
 Update package content:
-https://github.com/kevinobee/Sitecore.Ship
-
-Bundling
-http://www.bugdebugzone.com/2015/07/bundling-and-minification-in-sitecore.html
-http://jockstothecore.com/bundling-with-sitecore-mvc/
+https://github.com/kevinobee/Sitecore.Ship    
