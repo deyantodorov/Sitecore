@@ -4,12 +4,16 @@
 
 ### 1.1 Setup build steps:
 
-**Step 1:** If you are using Slack, you could add Slack notification for your team. Here you have two options:
+**Step 1: Notify Slack channel for start** 
+
+If you are using Slack, you could add Slack notification for your team. Here you have two options:
 
 - first write custom PowerShell script;
 - second install some TeamCity plugin to help you with this notifications;
 
-I tried some of the most popular plugins, but didn't work out for me and after some discussions decided to keep it simple and wrote a small PowerShell script. *Here is an example*:
+I tried some of the most popular plugins, but didn't work out for me and after some discussions decided to keep it simple and wrote a small PowerShell script. 
+
+*Here is an example*:
 
 ```PowerShell
 $slackToken = "your-slack-token"
@@ -23,7 +27,34 @@ $postSlackMessage = @{token=$slackToken; channel=$slackChannel; text=$slackText;
 Invoke-RestMethod -Uri https://slack.com/api/chat.postMessage -Body $postSlackMessage
 ```
 
-**Step 2: ** 
+**Step 2: Restore NuGet packages**
+
+What you should do before you try to build? Yes, you should **restore NuGet packages**. 
+
+1. Choose Runner Type: NuGet Installer.
+2. Path to solution file.
+3. If you didn't specify NuGet packages source in the solution you could add the following lines in **Packages sources** field:
+    - https://api.nuget.org/v3/index.json
+    - https://sitecore.myget.org/F/sc-packages - this is Sitecore NuGet, from where you could reference desired packages with Noreference type. *Keep in mind that sometimes it's unavailable and your build could fail, because it's not able to download used packages. For this reason I use **"Restore"** which cache downloaded packages in the build machine and use them instead of downloading again all of them.*
+4. Restore mode: Restore
+
+**Step 3: Visual Studio build**
+
+1. Runner type: "Visual Studio (sln)"
+2. Step name - specify some descriptive name like "Visual Studio build"
+3. Select path to solution file from repository
+4. Targets - enter targets separated by space or semicolon. Build, Rebuild, Clean, Publish targets are supported by default
+5. Configuration - Release 
+6. Platform - Any CPU
+
+*You could use "Build Features" AssemblyInfo patcher to change dlls info. You could setup it from "Build Features". Make sure that every AssemblyInfo.cs file has the following attributes:*
+
+```C#
+[assembly: AssemblyVersion("1.0.0")]
+[assembly: AssemblyFileVersion("1.0.0")]
+[assembly: AssemblyInformationalVersion("1.0.0")]
+```
+
 
 ## 2. Setup [Octopus Deploy](https://octopus.com/)
 
