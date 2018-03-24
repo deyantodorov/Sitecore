@@ -81,4 +81,4 @@ Sitecore configuration roles to help with environment configuration:
 https://github.com/Sitecore/Sitecore-Configuration-Roles - didn't work as expected
 
 Update package content:
-https://github.com/kevinobee/Sitecore.Ship
+https://github.com/kevinobee/Sitecore.Ship    
