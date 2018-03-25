@@ -55,10 +55,148 @@ What you should do before you try to build? Yes, you should **restore NuGet pack
 [assembly: AssemblyInformationalVersion("1.0.0")]
 ```
 
+**Step 4: Run unit tests**
+
+1. Runner type: NUnit
+2. Step name
+3. NUnit runner: NUnit 3
+4. Run test from: path to your test project
+
+**What's next?**
+
+Before I proceed with next steps I would like to explain what is the final goal. 
+
+In Sitecore world we have different "Servers" - [configuring servers](https://doc.sitecore.net/sitecore_experience_platform/81/setting_up_and_maintaining/xdb/configuring_servers/configuring_servers).
+- Content delivery server
+- Content management server
+- Processing/aggregation server
+- Reporting Service server
+- Collection database server
+- Reporting database server
+- Session database server 
+
+In my case I'll use simple configuration with 2 Content delivery server, 1 Content management server, 1 MS SQL Server. 
+
+After build & deployment I should have 2 Content delivery servers, 1 Content management server and content will be deployed and synced with [Team Development for Sitecore (TDS)](https://www.teamdevelopmentforsitecore.com/). 
+
+To be able to do this during the build I'll prepare 1 artifact for content delivery server (CDS/CD), 1 artifact for content management server (CMS/CM) and 1 or more TDS packages which will contain our content. Why I need to do this? I must have different artifacts/packages which will deployed on different environments - CDS/CD configuration and CMS/CM configuration. 
+
+**Step 5: Publish solution**
+
+I must publish the solution with Release profile to prepare the files which I'll use to create CDS and CMS artifacts.
+
+1. Runner type: Visual Studio (sln)
+2. Step name: Publish solution
+3. Solution file path
+4. Targets: Build
+5. Configuration: Release
+6. Command line parameters
+
+```PowerShell
+/p:DeployOnBuild=true
+/p:PublishProfile=%teamcity.build.checkoutDir%\MyProject\Properties\PublishProfiles\Release.pubxml
+```
+
+Here are details of my publish profile:
+
+```XML
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <WebPublishMethod>FileSystem</WebPublishMethod>
+    <PublishProvider>FileSystem</PublishProvider>
+    <LastUsedBuildConfiguration>Release</LastUsedBuildConfiguration>
+    <LastUsedPlatform>Any CPU</LastUsedPlatform>
+    <SiteUrlToLaunchAfterPublish />
+    <LaunchSiteAfterPublish>False</LaunchSiteAfterPublish>
+    <ExcludeApp_Data>False</ExcludeApp_Data>
+    <publishUrl>$(MSBuildThisFileDirectory)..\..\..\..\MyProject.Published</publishUrl>
+    <DeleteExistingFiles>False</DeleteExistingFiles>
+  </PropertyGroup>
+</Project>
+```
+
+As you can see after this step finish successfully it will produce this folder **MyProject.Published**. I will use the content of this folder to create CDS and CMS packages.
+
+**Step 6: Copy CDS/CMS folder**
+
+1. Runner type: PowerShell
+
+I will use this step and PowerShell to prepare the CDS and CMS artifacts. Here is my PowerShell script:
+
+```PowerShell
+$pathToCds = "MyProject.CDS"
+$pathToCms = "MyProject.CMS"
+$pathToPublish = "MyProject.Published\*"
+
+# Create folders
+New-Item -ItemType Directory -Force -Path $pathToCds
+Write-Output("Folder $pathToCds created.")
+
+New-Item -ItemType Directory -Force -Path $pathToCms
+Write-Output("Folder $pathToCms created.")
+
+# Copy publish folders content
+Copy-Item $pathToPublish -Recurse $pathToCds 
+Write-Output("Folder $pathToPublish copied to $pathToCds.")
+
+Copy-Item $pathToPublish -Recurse $pathToCms
+Write-Output("Folder $pathToPublish copied to $pathToCms.")
+```
+
+You could also use this step to copy some plugins files which will be necessary for proper work of some of installed plugins. You will need to have those plugins in CI/CD pipeline, because you don't want to install them after every build & deployment. Example of Sitecore Powershell plugin which will be added only in CMS folder:
+
+```PowerShell
+# Copy Sitecore.PowerShell.Extensions-4.3.for.Sitecore.8 dlls only on CMS bin
+$SitecorePowerShell  = "Plugins\SitecorePowerShell\dll\*"
+if ((Test-Path -Path $SitecorePowerShell) -eq $false) 
+{
+    Write-Error "Switch: Could not find $SitecorePowerShell"
+	Exit 1
+}
+else {    
+    Copy-item -Force -Recurse -Verbose $SitecorePowerShell -Destination $pathToPublishBin
+    Write-Output("Sitecore.PowerShell.Extensions dlls copied to $pathToCms\bin.")
+}
+
+# Copy Sitecore PowerShell Extensions for Sitecore dlls only on CMS bin
+$SitecorePowerShell  = "Plugins\SitecorePowerShell\dll\*"
+if ((Test-Path -Path $SitecorePowerShell) -eq $false) 
+{
+    Write-Error "Switch: Could not find $SitecorePowerShell"
+	Exit 1
+}
+else {    
+    Copy-item -Force -Recurse -Verbose $SitecorePowerShell -Destination $pathToPublishBin
+    Write-Output("Sitecore.PowerShell.Extensions dlls copied to $pathToCms\bin.")
+}
+
+# Copy Sitecore PowerShell Extensions for Sitecore files to sitecore
+$SitecorePowerShellFiles1  = "Plugins\SitecorePowerShell\sitecore\shell\Themes\Standard\*"
+if ((Test-Path -Path $SitecorePowerShellFiles1) -eq $false) 
+{
+    Write-Error "Switch: Could not find $SitecorePowerShellFiles1"
+	Exit 1
+}
+else {    
+    Copy-item -Force -Recurse -Verbose $SitecorePowerShellFiles1 -Destination "$pathToCms\sitecore\shell\Themes\Standard"
+    Write-Output("Sitecore.PowerShell.Extensions files copied to $pathToCms\sitecore\shell\Themes\Standard.") 
+}
+
+# Copy Sitecore PowerShell Extensions for Sitecore files to sitecore modules
+$SitecorePowerShellFiles2  = "Plugins\SitecorePowerShell\sitecore modules\*"
+if ((Test-Path -Path $SitecorePowerShellFiles2) -eq $false) 
+{
+    Write-Error "Switch: Could not find $SitecorePowerShellFiles2"
+	Exit 1
+}
+else {    
+    Copy-item -Force -Recurse -Verbose SitecorePowerShellFiles2 -Destination "$pathToCms\sitecore modules"
+    Write-Output("Sitecore.PowerShell.Extensions files copied to $pathToCms\sitecore modules.")
+}
+```
+
 
 ## 2. Setup [Octopus Deploy](https://octopus.com/)
-
-
 
 ## Tools:
 --
