@@ -638,9 +638,37 @@ The only difference from the previous step is the following:
 --packageversion=%build.number% --package=Sitecore.Base.Data:8 --package=Sitecore.Base.Website.CDS:8 --deploymenttimeout=00:30:00
 ```  
 
+**Step 15: OctopusDeploy: Release CDS2**
 
+The same as **Step 14**, but with different values for:
+- Step name
+- Project name
+
+**Step 16: Notify Slack Channel for Success**
+
+*This step will execute only if all previous steps finished successfully.*
+
+Again I will use PowerShell as I do it in **Step 1** and notify my team, but with different message. Here is an example:
+
+```PowerShell
+$slackToken = "your-slack-token"
+$slackChannel = "#your-slack-channel"
+$slackText = "Success Build & Deploy *%build.number%* - CMS -> https://cms.your-domain.com/ CDS -> https://your-domain.com/"
+$slackUserName = "TeamCity"
+$slackIcon = "https://pbs.twimg.com/profile_images/880014590427496448/fducIHLi_400x400.jpg"
+
+$postSlackMessage = @{token=$slackToken; channel=$slackChannel; text=$slackText; username=$slackUserName; icon_url=$slackIcon}
+
+Invoke-RestMethod -Uri https://slack.com/api/chat.postMessage -Body $postSlackMessage
+```
+
+I'm not going to explain how you could get Slack Token, because I'm sure that you're smart enough to do it :)
+
+We're done with the build. The result of the following steps will be artifacts for CDS/CD, CMS/CM and TDS update packages. I'll use those artifacts in Octopus Deploy. 
 
 ## 2. Setup [Octopus Deploy](https://octopus.com/)
+
+To be continued...
 
 ## Tools:
 --
