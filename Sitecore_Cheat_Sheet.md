@@ -39,6 +39,7 @@ Layout - in other CMS systems this is equal to template, but in Sitecore context
 
 The following SQL statement will clean out the history table, publish queue and event queue, leaving only 12 hours of history and publish data and 4 hours of events. Replace YOURDATABASE with the name of your database:
 
+```SQL
 /****** History ******/
 delete FROM [YOURDATABASE_Core].[dbo].[History] where Created < DATEADD(HOUR, -12, GETDATE())
 delete FROM [YOURDATABASE_Master].[dbo].[History] where Created < DATEADD(HOUR, -12, GETDATE())
@@ -53,6 +54,7 @@ delete FROM [YOURDATABASE_Web].[dbo].[PublishQueue] where Date < DATEADD(HOUR, -
 delete FROM [YOURDATABASE_Master].[dbo].[EventQueue] where [Created] < DATEADD(HOUR, -4, GETDATE())
 delete FROM [YOURDATABASE_Core].[dbo].[EventQueue] where [Created] < DATEADD(HOUR, -4, GETDATE())
 delete FROM [YOURDATABASE_Web].[dbo].[EventQueue] where [Created] < DATEADD(HOUR, -4, GETDATE())
+```
 
 # Links
 Bundling
