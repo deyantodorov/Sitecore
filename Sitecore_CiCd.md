@@ -703,8 +703,8 @@ So let's imagine that everything is ok and you have those two base packages read
 2. IIS AppPool - Stop.
 3. File System - Backup Directory - Website.
 4. File System - Backup Directory - Data.
-5. Deploy Sitecore Base Website Folder - enable option *"purge this directory before installation"*.
-6. Deploy Sitecore Base Data Folder - enable option *"purge this directory before installation"*. Here you could as well exclude files and folders from  "purge". For example - logs, indexes, packages, license and other things which shouldn't be deleted.
+5. Deploy Sitecore Base Website Folder for CMS/CM - enable option *"purge this directory before installation"*.
+6. Deploy Sitecore Base Data Folder for CMS/CM - enable option *"purge this directory before installation"*. Here you could as well exclude files and folders from  "purge". For example - logs, indexes, packages, license and other things which shouldn't be deleted.
 7. Deploy CMS package - this step will deploy TeamCity artifact for CMS environment.
 8. IIS AppPool - Create
 9. IIS Website - Create
@@ -765,6 +765,24 @@ if (Test-Path -Path "$Source\$FolderType\*") {
 I'm removing *"App_Data"* and *"temp"* folder to save extra space on the disk. Of course there are a lot of small tweaks and trick which you should use, but you could find them during setup of every single step. So this step is done. If you don't remember it's **triggered by TeamCity - Step 13: OctopusDeploy: Release CMS**.
 
 ## Step 4: Setup deploy steps for CDS/CD environment.
+
+1. Windows - Ensure Hosts File Entry Exists.
+2. IIS AppPool - Stop.
+3. File System - Backup Directory - Website.
+4. File System - Backup Directory - Data.
+5. Deploy Sitecore Base Website Folder for CDS/CD - enable option *"purge this directory before installation"*.
+6. Deploy Sitecore Base Data Folder for CDS/CD - enable option *"purge this directory before installation"*. Here you could as well exclude files and folders from  "purge". For example - logs, indexes, packages, license and other things which shouldn't be deleted.
+7. Deploy CDS/CD package - this step will deploy TeamCity artifact for CDS/CD environment.
+8. IIS AppPool - Create
+9. IIS Website - Create
+
+Next you could **ZIP** your **Data** and **Website**. For this purpose you could use the steps described above in the CMS/CM process.
+
+If you reach this line then you should know that this is the end :)
+
+If it's not clear read it again and read some of the links and materials bellow.
+
+Good luck and happy coding ;)
 
 ## Tools:
 - Octopus Deploy
