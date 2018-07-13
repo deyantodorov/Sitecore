@@ -667,17 +667,112 @@ We're done with the build. The result of the following steps will be artifacts f
 
 ## 2. Setup [Octopus Deploy](https://octopus.com/)
 
-To be continued...
+**Step 1: Create base packages for CDS/CD and CMS/CM environment.**
+
+If you need other types you should create them as well. Here you could find information how to prepare base [Sitecore instance for version 8, 8.1 and 8.2](https://doc.sitecore.net/sitecore_experience_platform/82/setting_up_and_maintaining/xdb/configuring_servers/configure_a_content_delivery_server).
+
+When I said **base installation** I mean that this is default content provided from Sitecore 8 - Data and Website folder. You need to rename/add or remove some of the configs, dlls and so on following official Sitecore recommendations from the above url. Except form dll and IIS configurations here you should modify configs by following this guidelines:
+
+- *For Sitecore 8.2, download the Config Enable Disable Excel spreadsheet for Sitecore 8.2 initial release.*
+- *For Sitecore 8.2 Update 1, download the Config Enable Disable Excel spreadsheet for Sitecore 8.2 Update 1.*
+- *For Sitecore 8.2 Update 2, Update 3, Update 4, and Update 5, download the Config Enable Disable Excel spreadsheet for Sitecore 8.2 Update 2-5.*
+- *For Sitecore 8.2 Update 6 and update 7, download the Config Enable Disable Excel spreadsheet for Sitecore 8.2 Update 6.*
+
+For my solution the result of this process are two NuGet packages which contain **Website** folder for CD and CM environment.
+
+I know this process is time consuming, but you could use two other options:
+
+- [Sitecore configuration roles to help with environment configuration](https://github.com/Sitecore/Sitecore-Configuration-Roles) - it doesn't work for some reason on my case;
+- another options is to migrate to Sitecore 9 where you have this option of easy switch out of the box. You could read more about [Sitecore 9 roles configuration here](https://doc.sitecore.net/developers/server-role-configuration-reference/core-roles/content-delivery.html).
+
+So let's imagine that everything is ok and you have those two base packages ready and uploaded on your [Octopus](https://octopus.com/) instance. If not read next step.
+
+## Step 2: Upload base packages to Octopus instance.
+
+1. Login in Octopus.
+2. Go in Library -> Packages -> Upload package
+3. I prefer to use descriptive names for those packages. For example:
+- Sitecore.Base.Website.CD	8.x.xxxxxx
+- Sitecore.Base.Website.CM	8.x.xxxxxx
+
+## Step 3: Setup deploy steps for CMS/CM environment.
+
+*Use variables as much as you can. Replace all environment settings with octopus variables.*
+
+1. Windows - Ensure Hosts File Entry Exists.
+2. IIS AppPool - Stop.
+3. File System - Backup Directory - Website.
+4. File System - Backup Directory - Data.
+5. Deploy Sitecore Base Website Folder - enable option *"purge this directory before installation"*.
+6. Deploy Sitecore Base Data Folder - enable option *"purge this directory before installation"*. Here you could as well exclude files and folders from  "purge". For example - logs, indexes, packages, license and other things which shouldn't be deleted.
+7. Deploy CMS package - this step will deploy TeamCity artifact for CMS environment.
+8. IIS AppPool - Create
+9. IIS Website - Create
+10. Deploy TDS update package - this step will deploy TDS update artifact from TeamCity.
+11. Install TDS update package - this step will use Sitecore.Ship to install the update packages. Here is example PowerShell script:
+
+```PowerShell
+# documentation about Sitecore.Ship - https://sitecoreship.docs.apiary.io/#
+
+# curl settings
+$ConnectionTimeOutInSeconds = 3000
+$MaxTimeOutInSeconds = 9000
+$CurlPath = "C:\curl\curl.exe"
+
+$SiteHostName = $OctopusParameters["Website.Name"]
+$FileUploadUrl = "https://$SiteHostName/services/package/install/fileupload"
+
+$TdsPackagesFolder = $OctopusParameters["Folder.TDS.Packages"]
+$UpdatePackagePath = "$TdsPackagesFolder\TDS.Packages.update"
+
+$CurlCommand= "$CurlPath --show-error --silent --connect-timeout $ConnectionTimeOutInSeconds --max-time $MaxTimeOutInSeconds --form ""filename=@$UpdatePackagePath"" $FileUploadUrl"
+
+Write-Output "INFO: Starting Invoke-Expression: $CurlCommand"
+
+Invoke-Expression $CurlCommand
+```
+
+Next you could **ZIP** your **Data** and **Website**. For this you could use Octopus and PowerShell or you could use scheduled task and PowerShell. Here is some example script for the case Octopus and PowerShell:
+
+```PowerShell
+$FolderType = "Website"
+$Source = $OctopusParameters["Folder.BackUp"]
+$ReleaseNumber = $OctopusParameters["Octopus.Release.Number"]
+$BackupName = "$FolderType.$ReleaseNumber.zip"
+
+if (Test-Path -Path "$Source\$FolderType\**\App_Data") {
+    Remove-Item "$Source\$FolderType\**\App_Data" -recurse
+    Write-Output("Remove App_Data folder.")
+} else {
+    Write-Output("App_Data folder doesn't exist.")
+}
+
+if (Test-Path -Path "$Source\$FolderType\**\temp") {
+    Remove-Item "$Source\$FolderType\**\temp" -recurse
+    Write-Output("Remove temp folder.")
+} else {
+    Write-Output("temp folder doesn't exist.")
+}
+
+if (Test-Path -Path "$Source\$FolderType\*") {
+    Get-ChildItem "$Source\$FolderType\*" | Sort-Object LastWriteTime | Select-Object -Last 1 | Compress-Archive -DestinationPath "$Source\$BackupName"
+    Remove-Item "$Source\$FolderType\*" -recurse
+    Write-Output("Remove $Source\$FolderType\*")
+} else {
+    Write-Output("$Source\$FolderType\* folder doesn't exist.")
+}
+```
+I'm removing *"App_Data"* and *"temp"* folder to save extra space on the disk. Of course there are a lot of small tweaks and trick which you should use, but you could find them during setup of every single step. So this step is done. If you don't remember it's **triggered by TeamCity - Step 13: OctopusDeploy: Release CMS**.
+
+## Step 4: Setup deploy steps for CDS/CD environment.
 
 ## Tools:
---
 - Octopus Deploy
 - TeamCity
 - Sitecore.Ship
 - Sitecore 8
 
 ## Links and materials:
---
 https://blog.wesleylomax.co.uk/2016/04/19/continuous-delivery-sitecore-tds-git-team-city-octopus-sitecore-ship-part-2/
 
 http://goblinrockets.com/2014/01/16/update-continuous-integration-deployment-sitecore/
