@@ -4,14 +4,14 @@
 
 ### 1.1 Setup build steps:
 
-**Step 1: Notify Slack channel for start** 
+**Step 1: Notify Slack channel for start**
 
 If you are using Slack, you could add Slack notification for your team. Here you have two options:
 
 - first write custom PowerShell script;
 - second install some TeamCity plugin to help you with this notifications;
 
-I tried some of the most popular plugins, but didn't work out for me and after some discussions decided to keep it simple and wrote a small PowerShell script. 
+I tried some of the most popular plugins, but didn't work out for me and after some discussions decided to keep it simple and wrote a small PowerShell script.
 
 *Here is an example*:
 
@@ -29,7 +29,7 @@ Invoke-RestMethod -Uri https://slack.com/api/chat.postMessage -Body $postSlackMe
 
 **Step 2: Restore NuGet packages**
 
-What you should do before you try to build? Yes, you should **restore NuGet packages**. 
+What you should do before you try to build? Yes, you should **restore NuGet packages**.
 
 1. Choose Runner Type: NuGet Installer.
 2. Path to solution file.
@@ -44,7 +44,7 @@ What you should do before you try to build? Yes, you should **restore NuGet pack
 2. Step name - specify some descriptive name like "Visual Studio build"
 3. Select path to solution file from repository
 4. Targets - enter targets separated by space or semicolon. Build, Rebuild, Clean, Publish targets are supported by default
-5. Configuration - Release 
+5. Configuration - Release
 6. Platform - Any CPU
 
 *You could use "Build Features" AssemblyInfo patcher to change dlls info. You could setup it from "Build Features". Make sure that every AssemblyInfo.cs file has the following attributes:*
@@ -64,7 +64,7 @@ What you should do before you try to build? Yes, you should **restore NuGet pack
 
 **What's next?**
 
-Before I proceed with next steps I would like to explain what is the final goal. 
+Before I proceed with next steps I would like to explain what is the final goal.
 
 In Sitecore world we have different "Servers" - [configuring servers](https://doc.sitecore.net/sitecore_experience_platform/81/setting_up_and_maintaining/xdb/configuring_servers/configuring_servers).
 - Content delivery server
@@ -73,13 +73,13 @@ In Sitecore world we have different "Servers" - [configuring servers](https://do
 - Reporting Service server
 - Collection database server
 - Reporting database server
-- Session database server 
+- Session database server
 
-In my case I'll use simple configuration with 2 Content delivery server, 1 Content management server, 1 MS SQL Server. 
+In my case I'll use simple configuration with 2 Content delivery server, 1 Content management server, 1 MS SQL Server.
 
-After build & deployment I should have 2 Content delivery servers, 1 Content management server and content will be deployed and synced with [Team Development for Sitecore (TDS)](https://www.teamdevelopmentforsitecore.com/). 
+After build & deployment I should have 2 Content delivery servers, 1 Content management server and content will be deployed and synced with [Team Development for Sitecore (TDS)](https://www.teamdevelopmentforsitecore.com/).
 
-To be able to do this during the build I'll prepare 1 artifact for content delivery server (CDS/CD), 1 artifact for content management server (CMS/CM) and 1 or more TDS packages which will contain our content. Why I need to do this? I must have different artifacts/packages which will deployed on different environments - CDS/CD configuration and CMS/CM configuration. 
+To be able to do this during the build I'll prepare 1 artifact for content delivery server (CDS/CD), 1 artifact for content management server (CMS/CM) and 1 or more TDS packages which will contain our content. Why I need to do this? I must have different artifacts/packages which will deployed on different environments - CDS/CD configuration and CMS/CM configuration.
 
 **Step 5: Publish solution**
 
@@ -136,7 +136,7 @@ New-Item -ItemType Directory -Force -Path $pathToCms
 Write-Output("Folder $pathToCms created.")
 
 # Copy publish folders content
-Copy-Item $pathToPublish -Recurse $pathToCds 
+Copy-Item $pathToPublish -Recurse $pathToCds
 Write-Output("Folder $pathToPublish copied to $pathToCds.")
 
 Copy-Item $pathToPublish -Recurse $pathToCms
@@ -148,48 +148,48 @@ You could also use this step to copy some plugin files which will be necessary f
 ```PowerShell
 # Copy Sitecore.PowerShell.Extensions-4.3.for.Sitecore.8 dlls only on CMS bin
 $SitecorePowerShell  = "Plugins\SitecorePowerShell\dll\*"
-if ((Test-Path -Path $SitecorePowerShell) -eq $false) 
+if ((Test-Path -Path $SitecorePowerShell) -eq $false)
 {
     Write-Error "Switch: Could not find $SitecorePowerShell"
 	Exit 1
 }
-else {    
+else {
     Copy-item -Force -Recurse -Verbose $SitecorePowerShell -Destination $pathToPublishBin
     Write-Output("Sitecore.PowerShell.Extensions dlls copied to $pathToCms\bin.")
 }
 
 # Copy Sitecore PowerShell Extensions for Sitecore dlls only on CMS bin
 $SitecorePowerShell  = "Plugins\SitecorePowerShell\dll\*"
-if ((Test-Path -Path $SitecorePowerShell) -eq $false) 
+if ((Test-Path -Path $SitecorePowerShell) -eq $false)
 {
     Write-Error "Switch: Could not find $SitecorePowerShell"
 	Exit 1
 }
-else {    
+else {
     Copy-item -Force -Recurse -Verbose $SitecorePowerShell -Destination $pathToPublishBin
     Write-Output("Sitecore.PowerShell.Extensions dlls copied to $pathToCms\bin.")
 }
 
 # Copy Sitecore PowerShell Extensions for Sitecore files to sitecore
 $SitecorePowerShellFiles1  = "Plugins\SitecorePowerShell\sitecore\shell\Themes\Standard\*"
-if ((Test-Path -Path $SitecorePowerShellFiles1) -eq $false) 
+if ((Test-Path -Path $SitecorePowerShellFiles1) -eq $false)
 {
     Write-Error "Switch: Could not find $SitecorePowerShellFiles1"
 	Exit 1
 }
-else {    
+else {
     Copy-item -Force -Recurse -Verbose $SitecorePowerShellFiles1 -Destination "$pathToCms\sitecore\shell\Themes\Standard"
-    Write-Output("Sitecore.PowerShell.Extensions files copied to $pathToCms\sitecore\shell\Themes\Standard.") 
+    Write-Output("Sitecore.PowerShell.Extensions files copied to $pathToCms\sitecore\shell\Themes\Standard.")
 }
 
 # Copy Sitecore PowerShell Extensions for Sitecore files to sitecore modules
 $SitecorePowerShellFiles2  = "Plugins\SitecorePowerShell\sitecore modules\*"
-if ((Test-Path -Path $SitecorePowerShellFiles2) -eq $false) 
+if ((Test-Path -Path $SitecorePowerShellFiles2) -eq $false)
 {
     Write-Error "Switch: Could not find $SitecorePowerShellFiles2"
 	Exit 1
 }
-else {    
+else {
     Copy-item -Force -Recurse -Verbose SitecorePowerShellFiles2 -Destination "$pathToCms\sitecore modules"
     Write-Output("Sitecore.PowerShell.Extensions files copied to $pathToCms\sitecore modules.")
 }
@@ -201,7 +201,7 @@ I'll use **NuGet Pack** to create an artifact with TDS update package. I'll give
 
 ```XML
 <?xml version="1.0"?>
-<package 
+<package
     xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MyProject.TDS.Master</id>
@@ -241,7 +241,7 @@ param
 
 Set-StrictMode -Version Latest
 
-if ((Test-Path -Path $ProjectFolder) -eq $false) 
+if ((Test-Path -Path $ProjectFolder) -eq $false)
 {
     Write-Error "Could not find $ProjectFolder"
 	Exit 1
@@ -253,7 +253,7 @@ Write-Output "Connection: Removing connection strings ..."
 
 $connectionConfigPath = "$ProjectFolder\App_Config\ConnectionStrings.config"
 
-if ((Test-Path -Path $connectionConfigPath) -eq $false) 
+if ((Test-Path -Path $connectionConfigPath) -eq $false)
 {
     Write-Error "Switch: Could not find $connectionConfigPath"
 	Exit 1
@@ -273,7 +273,7 @@ if ($null -ne $configKeyMaster) {
 
     Write-Output "Connection: Master database connection string removed ..."
 }
-else 
+else
 {
     Write-Output "Connection: Master database connection string not found ..."
 }
@@ -287,7 +287,7 @@ if ($null -ne $configKeyReporting) {
 
     Write-Output "Connection: Reporting database connection string removed ..."
 }
-else 
+else
 {
     Write-Output "Connection: Reporting database connection string not found ..."
 }
@@ -301,7 +301,7 @@ if ($null -ne $configKeyTracking) {
 
     Write-Output "Connection: Tracking.history database connection string removed ..."
 }
-else 
+else
 {
     Write-Output "Connection: Tracking.history database connection string not found ..."
 }
@@ -330,7 +330,7 @@ Write-Output "Ship: Removing Web.config entries ..."
 
 $webConfigPath = "$ProjectFolder\Web.config"
 
-if ((Test-Path -Path $webConfigPath) -eq $false) 
+if ((Test-Path -Path $webConfigPath) -eq $false)
 {
     Write-Error "Ship: Could not find $webConfigPath"
 	Exit 1
@@ -352,7 +352,7 @@ if ($null -ne $packageInstallationSectionNode) {
 
     Write-Output "Ship: Entry removed."
 }
-else 
+else
 {
     Write-Output "Ship: Entry not found."
 }
@@ -366,7 +366,7 @@ if ($null -ne $httpHandlersWebNode) {
 
     Write-Output "Ship: Entry removed."
 }
-else 
+else
 {
     Write-Output "Ship: Entry not found."
 }
@@ -380,7 +380,7 @@ if ($null -ne $httpHandlersServerRemove) {
 
     Write-Output "Ship: Entry removed."
 }
-else 
+else
 {
     Write-Output "Ship: Entry not found."
 }
@@ -394,7 +394,7 @@ if ($null -ne $httpHandlersServerAdd) {
 
     Write-Output "Ship: Entry removed."
 }
-else 
+else
 {
     Write-Output "Ship: Entry not found."
 }
@@ -408,7 +408,7 @@ if ($null -ne $packageInstallationNode) {
 
     Write-Output "Ship: Node removed."
 }
-else 
+else
 {
     Write-Output "Ship: Node not found."
 }
@@ -472,7 +472,7 @@ param
 
 Set-StrictMode -Version Latest
 
-if ((Test-Path -Path $ProjectFolder) -eq $false) 
+if ((Test-Path -Path $ProjectFolder) -eq $false)
 {
     Write-Error "Could not find $ProjectFolder"
 	Exit 1
@@ -482,7 +482,7 @@ Write-Output "Start tweaking content management site."
 
 Write-Output "Clean: Starting to clean BIN folder ..."
 
-Write-Output "Clean: Removind App_Config folder ..."
+Write-Output "Clean: Removing App_Config folder ..."
 
 Remove-Item -Path "$ProjectFolder\bin\App_Config" -Verbose -Force -ErrorAction SilentlyContinue
 
@@ -492,7 +492,7 @@ Write-Output "Start tweaking headers section."
 
 $webConfigPath = "$ProjectFolder\Web.config"
 
-if ((Test-Path -Path $webConfigPath) -eq $false) 
+if ((Test-Path -Path $webConfigPath) -eq $false)
 {
     Write-Error "Headers: Could not find $webConfigPath"
 	Exit 1
@@ -507,10 +507,9 @@ $responseHeadersNode = $webConfig.SelectSingleNode("/configuration/system.webSer
 
 if ($null -ne $responseHeadersNode) {
     $responseHeadersNode.ParentNode.RemoveChild($responseHeadersNode)
-	
     Write-Output "Headers: Removed response headers rule."
 }
-else 
+else
 {
 	Write-Output "Headers: Response headers rule not found."
 }
@@ -537,7 +536,7 @@ Here I'll create a NuGet package from CDS folder.
 
 ```XML
 <?xml version="1.0"?>
-<package 
+<package
     xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MyProject.CDS</id>
@@ -571,7 +570,7 @@ Here I'll create a NuGet package from CMS folder.
 
 ```XML
 <?xml version="1.0"?>
-<package 
+<package
     xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MyProject.CMS</id>
@@ -636,7 +635,7 @@ The only difference from the previous step is the following:
 
 ```PowerShell
 --packageversion=%build.number% --package=Sitecore.Base.Data:8 --package=Sitecore.Base.Website.CDS:8 --deploymenttimeout=00:30:00
-```  
+```
 
 **Step 15: OctopusDeploy: Release CDS2**
 
@@ -664,7 +663,7 @@ Invoke-RestMethod -Uri https://slack.com/api/chat.postMessage -Body $postSlackMe
 
 I'm not going to explain how you could get Slack Token, because I'm sure that you're smart enough to do it :)
 
-We're done with the build. The result of the following steps will be artifacts for CDS/CD, CMS/CM and TDS update packages. I'll use those artifacts in Octopus Deploy. 
+We're done with the build. The result of the following steps will be artifacts for CDS/CD, CMS/CM and TDS update packages. I'll use those artifacts in Octopus Deploy.
 
 ## 2. Setup [Octopus Deploy](https://octopus.com/)
 
@@ -691,4 +690,4 @@ Sitecore configuration roles to help with environment configuration:
 https://github.com/Sitecore/Sitecore-Configuration-Roles - didn't work as expected
 
 Update package content:
-https://github.com/kevinobee/Sitecore.Ship    
+https://github.com/kevinobee/Sitecore.Ship
