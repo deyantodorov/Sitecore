@@ -60,3 +60,6 @@ delete FROM [YOURDATABASE_Web].[dbo].[EventQueue] where [Created] < DATEADD(HOUR
 Bundling
 - http://www.bugdebugzone.com/2015/07/bundling-and-minification-in-sitecore.html
 - http://jockstothecore.com/bundling-with-sitecore-mvc/
+
+# Sitecore 9 topologies
+- https://kb.sitecore.net/articles/043375 - great resource if information before you plan your costs.
