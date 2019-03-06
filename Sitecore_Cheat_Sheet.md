@@ -62,4 +62,4 @@ Bundling
 - http://jockstothecore.com/bundling-with-sitecore-mvc/
 
 # Sitecore 9 topologies
-- https://kb.sitecore.net/articles/043375 - great resource if information before you plan your costs.
+- https://kb.sitecore.net/articles/043375 - great resource of information before you plan your costs.
