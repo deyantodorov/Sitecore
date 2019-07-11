@@ -13,7 +13,7 @@ As you can see Sitecore recommends **S** services plans or **I** service plans.
 
 More information about Azure App Service Plan you could find [here](https://azure.microsoft.com/en-us/pricing/details/app-service/plans/) and about pricing details [here](https://azure.microsoft.com/en-us/pricing/details/app-service/windows/).
 
-If you check the price of **S3** in West Europe it will cost around ~$292/month, but if you would like to check with something similar to S3 you might take **I2** (~$438/month) or **I3** (~$876/month) which is a big price increase.
+If you check the price of **S3** in West Europe it will cost around $292/month, but if you would like to check with something similar to S3 you might take **I2** ($438/month) or **I3** ($876/month) which is a big price increase.
 
 So I decided to take something in similar price range which is **P2v2** and will cost around ~$292/month.
 
